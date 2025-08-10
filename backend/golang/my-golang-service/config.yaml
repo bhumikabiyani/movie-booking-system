@@ -1,0 +1,6 @@
+user: bhumikabiyani
+password: "123"
+dbname: mbs
+host: host.docker.internal
+port: "5432"
+sslmode: disable

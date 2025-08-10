@@ -1,0 +1,61 @@
+# Golang Application Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-golang-app 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-golang-app
+  template:
+    metadata:
+      labels:
+        app: my-golang-app
+    spec:
+      containers:
+      - name: my-golang-app
+        image: nika121/my-golang-app
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/config.yaml
+          subPath: config.yaml
+      volumes:
+      - name: config-volume
+        configMap:
+          name: my-golang-config
+
+---
+
+# ConfigMap for Golang Application
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: my-golang-config
+data:
+  config.yaml: |
+    user: bhumikabiyani
+    password: "123"
+    dbname: mbs
+    host: host.docker.internal
+    port: "5432"
+    sslmode: disable
+
+---
+
+# Service to Expose Golang App
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-golang-service
+spec:
+  selector:
+    app: my-golang-app
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+      nodePort: 30081  
+  type: NodePort  

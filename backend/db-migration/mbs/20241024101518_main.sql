@@ -1,0 +1,102 @@
+-- +goose Up
+-- +goose StatementBegin
+-- Movies Table
+-- Create Movies Table
+CREATE TABLE Movies (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR,
+    info JSONB NOT NULL DEFAULT '{}'::JSONB,
+    created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP WITHOUT TIME ZONE DEFAULT NULL
+);
+
+-- Create Users Table
+CREATE TABLE Users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR,
+    email VARCHAR,
+    phone INTEGER,
+    created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP WITHOUT TIME ZONE DEFAULT NULL
+);
+
+-- Create Theatre Table
+CREATE TABLE Theatre (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR,
+    info JSONB NOT NULL DEFAULT '{}'::JSONB,
+    created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP WITHOUT TIME ZONE DEFAULT NULL
+);
+
+-- Create Shows Table
+CREATE TABLE Shows (
+    id SERIAL PRIMARY KEY,
+    start_time TIMESTAMP,
+    date DATE,
+    movie_id INTEGER REFERENCES Movies(id) ON DELETE CASCADE,
+    theatre_id INTEGER REFERENCES Theatre(id) ON DELETE CASCADE,
+    created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP WITHOUT TIME ZONE DEFAULT NULL
+);
+
+-- Create Seats Table
+CREATE TABLE Seats (
+    id SERIAL PRIMARY KEY,
+    seat_number INTEGER NOT NULL,
+    show_id INTEGER REFERENCES Shows(id) ON DELETE CASCADE,
+    occupied boolean,
+    created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP WITHOUT TIME ZONE DEFAULT NULL
+);
+
+-- Create Bookings Table
+CREATE TABLE Bookings (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES Users(id) ON DELETE CASCADE,
+    show_id INTEGER REFERENCES Shows(id) ON DELETE CASCADE,
+    ticket_no VARCHAR NOT NULL,
+    total_seats_booked INTEGER,
+    info JSONB NOT NULL DEFAULT '{}'::JSONB,
+    created_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITHOUT TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP WITHOUT TIME ZONE DEFAULT NULL
+);
+
+-- +goose Up
+-- Change seat_number type to VARCHAR in Seats table
+ALTER TABLE Seats
+    ALTER COLUMN seat_number TYPE VARCHAR USING seat_number::VARCHAR;
+
+-- +goose Down
+-- Revert seat_number type back to INTEGER in Seats table
+ALTER TABLE Seats
+    ALTER COLUMN seat_number TYPE INTEGER USING seat_number::INTEGER;
+
+-- +goose StatementEnd
+
+-- +goose Down
+-- Drop Bookings Table
+DROP TABLE IF EXISTS Bookings;
+
+-- Drop Seats Table
+DROP TABLE IF EXISTS Seats;
+
+-- Drop Shows Table
+DROP TABLE IF EXISTS Shows;
+
+-- Drop Theatre Table
+DROP TABLE IF EXISTS Theatre;
+
+-- Drop Users Table
+DROP TABLE IF EXISTS Users;
+
+-- Drop Movies Table
+DROP TABLE IF EXISTS Movies;
+
+
