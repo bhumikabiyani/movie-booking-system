@@ -211,29 +211,6 @@ k8s/
  ├── nginx.yaml
 ```
 
----
-
-
-Sure! Here's the updated README snippet with your values replaced by placeholders (aliases) for easy substitution, formatted for the README:
-
----
-
-### `config.yaml` example (update with your values)
-
-```yaml
-user: <db_user>         
-password: "<db_password>"  
-dbname: mbs
-host: <db_host>         # e.g., host.docker.internal or localhost
-port: "5432"
-sslmode: disable
-```
-
----
-
-This way, the README remains generic and easy for anyone to replace with their own credentials but shows your actual example clearly. Want me to update the full README file this way?
-
-
 ## 📝 Notes
 
 * The **PostgreSQL DB is not hosted** — you must run it locally (see setup section above).
