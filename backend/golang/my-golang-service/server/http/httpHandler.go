@@ -40,6 +40,7 @@ func GetBookedSeatsForShow(db *gorm.DB) http.HandlerFunc {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 			return
 		}
+
 		showIDStr := r.URL.Query().Get("show_id")
 		if showIDStr == "" {
 			http.Error(w, "Show ID is required", http.StatusBadRequest)
@@ -50,26 +51,29 @@ func GetBookedSeatsForShow(db *gorm.DB) http.HandlerFunc {
 			http.Error(w, "Invalid Show ID", http.StatusBadRequest)
 			return
 		}
+
 		seats, err := c.GetBookedSeatsForShow(db, showID)
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
-				http.Error(w, "No seats found for the show", http.StatusNotFound)
+				http.Error(w, "No show found", http.StatusNotFound)
 				return
 			}
 			log.Printf("Error retrieving seats: %v", err)
 			http.Error(w, "Failed to fetch seats", http.StatusInternalServerError)
 			return
 		}
+
 		response := struct {
-			Success bool               `json:"success"`
-			Seats   []entityModel.Seat `json:"seats"`
+			Success bool     `json:"success"`
+			Seats   []string `json:"seats"`
 		}{
 			Success: true,
 			Seats:   seats,
 		}
+
 		w.Header().Set("Content-Type", "application/json")
-		err = json.NewEncoder(w).Encode(response)
-		if err != nil {
+		w.WriteHeader(http.StatusOK)
+		if err := json.NewEncoder(w).Encode(response); err != nil {
 			log.Printf("Error encoding response to JSON: %v", err)
 			http.Error(w, "Failed to encode response as JSON", http.StatusInternalServerError)
 			return
@@ -245,7 +249,7 @@ func CreateBooking(db *gorm.DB) http.HandlerFunc {
 
 		if err != nil {
 			log.Printf("Error creating booking: %v", err)
-			http.Error(w, "Failed to create booking", http.StatusInternalServerError)
+			http.Error(w, "Failed to create booking: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
 		response := struct {
@@ -409,7 +413,7 @@ func GetShowsByMovieId(db *gorm.DB) http.HandlerFunc {
 
 func PrefillSeats(db *gorm.DB) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		
+
 		// Extract show ID from the query parameters
 		showIDStr := r.URL.Query().Get("show_id")
 		if showIDStr == "" {

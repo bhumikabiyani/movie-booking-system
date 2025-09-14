@@ -1,6 +1,7 @@
 package core
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
@@ -21,6 +22,7 @@ func HomePage(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "Welcome to the Home Page!")
 	fmt.Println("Endpoint Hit: homePage")
 }
+
 func GetAllTheatres(db *gorm.DB, theatreRequestPayload requestResponseModels.TheatreRequestPayload) ([]requestResponseModels.TheatrePayload, error) {
 	var theatres []entityModels.Theatre
 
@@ -190,25 +192,25 @@ func CreateBooking(db *gorm.DB, bookingRequest requestResponseModels.BookingRequ
 
 	bookingEntity := datamapper.MapRequestToBookingEntity(bookingRequest, ticketNumber, movie, show)
 
-	//add check to not book duplicate seats
-	seats := make([]int, len(bookingRequest.Seats))
-	for i, s := range bookingRequest.Seats {
-		seats[i], err = strconv.Atoi(s)
-		if err != nil {
-			log.Printf("Error converting seat %s to int: %v", s, err)
-			return 0, err
-		}
-	}
-	alreadyBooked, err := repo.CheckSeatsAvailability(db, bookingRequest.ShowID, seats)
+	// seats := make([]int, len(bookingRequest.Seats))
+	// for i, s := range bookingRequest.Seats {
+	// 	seats[i], err = strconv.Atoi(s)
+	// 	if err != nil {
+	// 		log.Printf("Error converting seat %s to int: %v", s, err)
+	// 		return 0, err
+	// 	}
+	// }
+
+	avalibility, err := repo.CheckSeatsAvailability(db, bookingRequest.ShowID, bookingRequest.Seats)
 	if err != nil {
 		log.Printf("Error checking seat availability: %v", err)
 		return 0, err
 	}
-	if alreadyBooked {
+	if !avalibility {
 		log.Println("One or more requested seats are already booked.")
 		return 0, errors.New("one or more requested seats are already booked")
 	}
-		
+
 	tx := db.Begin()
 	if tx.Error != nil {
 		return 0, tx.Error
@@ -221,7 +223,7 @@ func CreateBooking(db *gorm.DB, bookingRequest requestResponseModels.BookingRequ
 		return 0, err
 	}
 
-	err = repo.UpdateBookedSeats(tx, bookingRequest.ShowID, bookingRequest.Seats)
+	err = repo.UpdateBookedSeatsForShow(tx, bookingRequest.ShowID, bookingRequest.Seats)
 	if err != nil {
 		log.Printf("Error updating seats: %v", err)
 		tx.Rollback()
@@ -233,8 +235,10 @@ func CreateBooking(db *gorm.DB, bookingRequest requestResponseModels.BookingRequ
 		log.Printf("Error committing transaction: %v", err)
 		return 0, err
 	}
+
 	return bookingID, nil
 }
+
 func GetAllBookings(db *gorm.DB) ([]requestResponseModels.BookingResponse, error) {
     var bookings []entityModels.Booking
     bookings, err := repo.GetAllBookings(db)
@@ -326,15 +330,27 @@ func GetShowsByMovieID(db *gorm.DB, movieId int) ([]requestResponseModels.ShowDe
 	return response, nil
 }
 
-func GetBookedSeatsForShow(db *gorm.DB, showID int) ([]entityModels.Seat, error) {
-	filterString := "show_id = " + strconv.Itoa(showID) + " AND occupied = " + strconv.FormatBool(true)
-	seats, err := repo.GetBookedSeatsForShow(db, filterString)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, gorm.ErrRecordNotFound
-		}
-		log.Printf("Error retrieving seats: %v", err)
-		return nil, err
-	}
-	return seats, nil
+func GetBookedSeatsForShow(db *gorm.DB, showID int) ([]string, error) {
+    filter := fmt.Sprintf("id = %d", showID)
+    show, err := repo.GetShows(db, filter)
+    if err != nil {
+        if errors.Is(err, gorm.ErrRecordNotFound) {
+            return nil, gorm.ErrRecordNotFound
+        }
+        log.Printf("Error retrieving show: %v", err)
+        return nil, err
+    }
+
+    seatsJSON := strings.TrimSpace(show.BookedSeats)
+    if seatsJSON == "" || seatsJSON == "null" || seatsJSON == "[]" {
+        return []string{}, nil
+    }
+
+    var seats []string
+    if err := json.Unmarshal([]byte(seatsJSON), &seats); err != nil {
+        log.Printf("Error unmarshalling booked_seats for show %d: %v", showID, err)
+        return nil, err
+    }
+
+    return seats, nil
 }

@@ -4,19 +4,17 @@ import {
   Text,
   TouchableOpacity,
   FlatList,
-  ActivityIndicator,
+  Alert,
 } from "react-native";
+import LoadingSpinner from '../../components/common/LoadingSpinner';
 import useStyles from "./style";
 import CrossIcon from "../../components/icons/crossIcon";
 import { useDispatch } from "react-redux";
 import { createBooking, createBookingReset } from "../../actions/createBooking";
 import { useTypedSelector } from "../../store/rootStore";
 import {
-  getBookedSeatsForShow,
   getBookedSeatsForShowReset,
 } from "../../actions/getBookedSeatsForShow";
-import { Iseats } from "../../models/getBookedSeatsForShow";
-
 const style = useStyles();
 
 interface seatProp {
@@ -24,15 +22,6 @@ interface seatProp {
   navigation: any;
   showID: number;
 }
-
-const extractSeatNumber = (seats: Iseats[]) => {
-  let seatNumbers: string[] = [];
-  seats.forEach((seat) => {
-    seatNumbers.push(seat.seat_number);
-  });
-  console.log("bookedseats", { seatNumbers });
-  return seatNumbers;
-};
 
 const SeatBooking = (props: seatProp) => {
   const dispatch = useDispatch();
@@ -42,12 +31,14 @@ const SeatBooking = (props: seatProp) => {
   const bookedSeatsData = useTypedSelector(
     (state) => state.GetBookedSeatsForShowReducer
   );
-  const blockedSeatsObj: Iseats[] = bookedSeatsData?.data?.seats || [];
-  const blockedSeats = extractSeatNumber(blockedSeatsObj);
+  const blockedSeats: string[] = bookedSeatsData?.data?.seats || [];
 
   useEffect(() => {
-    bookedSeatsData.isSuccess && setBookedSeats(blockedSeats);
-  }, [bookedSeatsData.isSuccess]);
+    if (bookedSeatsData.isSuccess && blockedSeats.length >= 0) {
+      setBookedSeats(blockedSeats);
+      console.log("Updated booked seats:", blockedSeats);
+    }
+  }, [bookedSeatsData.isSuccess, blockedSeats]);
 
   console.log({ bookedSeatsData });
 
@@ -93,10 +84,13 @@ const SeatBooking = (props: seatProp) => {
   };
 
   const handleSubmit = () => {
+    if (selectedSeats.length === 0) {
+      console.warn("No seats selected for booking");
+      return;
+    }
+    
     setIsLoading(true);
-    setBookedSeats([...bookedSeats, ...selectedSeats]);
-    setSelectedSeats([]);
-
+    
     dispatch(
       createBooking({
         show_id: props.showID,
@@ -108,12 +102,24 @@ const SeatBooking = (props: seatProp) => {
   useEffect(() => {
     if (createTicketState?.isSuccess) {
       setIsLoading(false);
+      setBookedSeats([...bookedSeats, ...selectedSeats]);
+      setSelectedSeats([]);
       props.onClose();
       props.navigation.navigate("Movies", {
         screen: "Success",
         params: { id: createTicketState?.data?.booking },
       });
       dispatch(getBookedSeatsForShowReset());
+      dispatch(createBookingReset());
+    } else if (createTicketState?.error) {
+      setIsLoading(false);
+      setSelectedSeats([]);
+      console.error("Booking failed:", createTicketState?.error);
+      Alert.alert(
+        "Booking Failed",
+        "Please try again or select different seats.",
+        [{ text: "OK" }]
+      );
       dispatch(createBookingReset());
     }
   }, [createTicketState]);
@@ -136,6 +142,20 @@ const SeatBooking = (props: seatProp) => {
             ]}
             onPress={() => toggleSeatSelection(seat)}
             disabled={blockedSeats.includes(seat)}
+            accessible={true}
+            accessibilityLabel={`Seat ${seat}`}
+            accessibilityHint={
+              blockedSeats.includes(seat)
+                ? "This seat is already booked"
+                : selectedSeats.includes(seat)
+                ? "Tap to deselect this seat"
+                : "Tap to select this seat"
+            }
+            accessibilityRole="button"
+            accessibilityState={{
+              selected: selectedSeats.includes(seat),
+              disabled: blockedSeats.includes(seat),
+            }}
           >
             <Text style={style.seatText}>{seat}</Text>
           </TouchableOpacity>
@@ -182,7 +202,7 @@ const SeatBooking = (props: seatProp) => {
       </View>
 
       {isLoading ? (
-        <ActivityIndicator size="large" color="#0000ff" />
+        <LoadingSpinner size="large" />
       ) : (
         <TouchableOpacity
           style={[
@@ -191,6 +211,11 @@ const SeatBooking = (props: seatProp) => {
           ]}
           onPress={() => handleSubmit()}
           disabled={selectedSeats.length === 0}
+          accessible={true}
+          accessibilityLabel={`Book ${selectedSeats.length} seats for ${selectedSeats.length * seatPrice} rupees`}
+          accessibilityHint={selectedSeats.length === 0 ? "Select seats to enable booking" : "Tap to confirm your booking"}
+          accessibilityRole="button"
+          accessibilityState={{ disabled: selectedSeats.length === 0 }}
         >
           <Text style={style.bookButtonText}>
             BOOK ₹ {selectedSeats.length * seatPrice}

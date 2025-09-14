@@ -22,7 +22,7 @@ const getBookedSeatsForShowEpic = (action$: any) =>
           });
         }),
         catchError((error: IErrorActionData) => {
-          console.error("Service error:", error);
+          console.error("get booked seats for show Service error:", error);
           return of(
             getBookedSeatsForShowFailure({
               errorCode: error.errorCode,

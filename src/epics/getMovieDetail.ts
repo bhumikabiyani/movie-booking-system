@@ -23,7 +23,7 @@ const getMovieByIdEpic = (action$: any) =>
           });
         }),
         catchError((error: IErrorActionData) => {
-          console.error("Service error:", error);
+          console.error("get movie details Service error:", error);
           return of(
             getMovieDetailFailure({
               errorCode: error.errorCode,

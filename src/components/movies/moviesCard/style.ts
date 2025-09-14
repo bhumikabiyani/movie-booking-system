@@ -3,46 +3,59 @@ import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
+import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../../constants/theme';
 
 const Styles = StyleSheet.create({
   card: {
-    marginVertical: hp("1.5%"),
-    padding: wp("0.7%"),
+    marginVertical: Spacing.sm,
+    marginHorizontal: Spacing.sm,
+    padding: Spacing.md,
+    backgroundColor: Colors.background,
+    borderRadius: BorderRadius.xl,
+    ...Shadows.md,
+    alignItems: 'center',
   },
   cardContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
-    height: hp("22%"),
-    textAlign: "center",
+    height: hp("25%"),
+    paddingHorizontal: Spacing.sm,
   },
   noMoviesText: {
-    fontSize: 18,
-    color: "#555",
+    fontSize: Typography.fontSize.lg,
+    color: Colors.textSecondary,
     textAlign: "center",
     marginTop: hp("7%"),
+    fontWeight: Typography.fontWeight.medium,
   },
   image: {
-    width: wp("30%"),
-    height: hp("13%"),
-    borderRadius: wp("3%"),
-    objectFit: "fill",
+    width: wp("28%"),
+    height: hp("15%"),
+    borderRadius: BorderRadius.lg,
+    resizeMode: "cover",
+    marginBottom: Spacing.sm,
+    ...Shadows.sm,
   },
 
   movieName: {
-    fontSize: wp("4%"),
-    fontWeight: "600",
-    color: "#333",
-    flexWrap: "wrap",
+    fontSize: Typography.fontSize.base,
+    fontWeight: Typography.fontWeight.semibold,
+    color: Colors.textPrimary,
+    textAlign: 'center',
     maxWidth: wp("25%"),
+    marginBottom: Spacing.xs,
   },
   movieLang: {
-    fontSize: wp("3.5%"),
-    color: "#333",
+    fontSize: Typography.fontSize.sm,
+    color: Colors.textSecondary,
+    fontWeight: Typography.fontWeight.medium,
+    textAlign: 'center',
   },
   activeTitle: {
-    borderColor: "#832DA4",
-    backgroundColor: "#D9D0E6",
-    color: "black",
+    borderWidth: 2,
+    borderColor: Colors.primary,
+    transform: [{ scale: 1.05 }],
+    ...Shadows.lg,
   },
 });
 

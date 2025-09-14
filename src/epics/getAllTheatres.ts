@@ -22,7 +22,7 @@ const getAllTheatresEpic = (action$: any) =>
           });
         }),
         catchError((error: IErrorActionData) => {
-          console.error("Service error:", error);
+          console.error("get all theatre Service error:", error);
           return of(
             getAllTheatresFailure({
               errorCode: error.errorCode,

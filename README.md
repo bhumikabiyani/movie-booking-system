@@ -1,224 +1,79 @@
-# 🎬 Movie Booking System
+This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
 
-![Go Version](https://img.shields.io/badge/Go-1.21+-00ADD8?logo=go)
-![React Native](https://img.shields.io/badge/React%20Native-0.73-blue?logo=react)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-13+-336791?logo=postgresql)
-![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker)
-![Kubernetes](https://img.shields.io/badge/Kubernetes-ready-326CE5?logo=kubernetes)
-![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+# Getting Started
 
-A **full-stack movie booking application** built with:
+>**Note**: Make sure you have completed the [React Native - Environment Setup](https://reactnative.dev/docs/environment-setup) instructions till "Creating a new application" step, before proceeding.
 
-* **Backend:** Golang (GORM, PostgreSQL)
-* **Frontend:** React Native
-* **Database:** PostgreSQL
-* **Deployment Ready:** Kubernetes manifests included
-* **Dockerized:** Multi-stage builds for production-ready images
+## Step 1: Start the Metro Server
 
----
+First, you will need to start **Metro**, the JavaScript _bundler_ that ships _with_ React Native.
 
-## ⚠️ Important Note
-
-The **PostgreSQL database is not hosted yet**.
-You must run it locally for now — either directly on your machine or via Docker.
-
----
-
-## 🗄 Local PostgreSQL Setup (Required Before Running)
-
-### Option 1 — Run via Docker (recommended)
+To start Metro, run the following command from the _root_ of your React Native project:
 
 ```bash
-docker run --name movie-postgres \
-    -e POSTGRES_DB=mbs \
-    -e POSTGRES_USER=<your_db_user> \
-    -e POSTGRES_PASSWORD=<your_db_password> \
-    -p 5432:5432 \
-    -d postgres:13
-```
-
-### Option 2 — Run on Local Machine
-
-1. Install PostgreSQL from [https://www.postgresql.org/download/](https://www.postgresql.org/download/)
-2. Start PostgreSQL service:
-
-   ```bash
-   sudo service postgresql start   # Linux  
-   brew services start postgresql  # macOS  
-   ```
-3. Create the database and user:
-
-   ```sql
-   psql -U postgres
-   CREATE DATABASE mbs;
-   CREATE USER <your_db_user> WITH PASSWORD '<your_db_password>';
-   GRANT ALL PRIVILEGES ON DATABASE mbs TO <your_db_user>;
-   ```
-
----
-
-## 🛠 Backend Configuration
-
-Create a `config.yaml` in the backend root:
-
-```yaml
-user: <your_db_user>
-password: "<your_db_password>"
-dbname: mbs
-host: localhost
-port: "5432"
-sslmode: disable
-```
-
----
-
-## 📌 Features
-
-* **Movie Management**: View all movies, search by language or keyword
-* **Theatre Management**: View theatres, filter by name/location
-* **Show Scheduling**: Associate movies with theatres and times
-* **Seat Layouts**: Auto-prefill seats for a show
-* **Bookings**: Create and retrieve bookings, view booked seats
-* **REST API Endpoints** for all core operations
-
----
-
-## 🛠 Tech Stack
-
-| Component     | Technology              |
-| ------------- | ----------------------- |
-| Backend       | Golang (net/http, GORM) |
-| Frontend      | React Native            |
-| Database      | PostgreSQL              |
-| Deployment    | Kubernetes, Docker      |
-| Config Format | YAML                    |
-
----
-
-## 🗄 Database Schema
-
-The system uses the following tables:
-
-* **Movies**
-* **Users**
-* **Theatre**
-* **Shows**
-* **Seats**
-* **Bookings**
-
-See `migrations` for the **full SQL structure** including constraints and relationships.
-
----
-
-## ⚙️ Local Setup
-
-### 1️⃣ Clone the repository
-
-```bash
-git clone https://github.com/<your-username>/movie-booking-app.git
-cd movie-booking-app
-```
-
-### 2️⃣ Start PostgreSQL locally
-
-(If you haven’t already done so, follow the **Local PostgreSQL Setup** section above.)
-
-### 3️⃣ Run database migrations
-
-The repo uses **goose** for migrations:
-
-```bash
-goose postgres "user=<your_db_user> password=<your_db_password> dbname=mbs host=localhost sslmode=disable" up
-```
-
-### 4️⃣ Start the backend
-
-```bash
-cd backend
-go run main.go
-```
-
-By default, it runs at **`http://localhost:8080`**
-
-### 5️⃣ Run the frontend
-
-```bash
-cd frontend
-npm install
+# using npm
 npm start
+
+# OR using Yarn
+yarn start
 ```
 
----
+## Step 2: Start your Application
 
-## 🚀 Running with Docker
+Let Metro Bundler run in its _own_ terminal. Open a _new_ terminal from the _root_ of your React Native project. Run the following command to start your _Android_ or _iOS_ app:
 
-Build and run the backend:
+### For Android
 
 ```bash
-docker build -t movie-backend .
-docker run -p 8080:8080 movie-backend
+# using npm
+npm run android
+
+# OR using Yarn
+yarn android
 ```
 
----
-
-## ☸ Kubernetes Deployment
-
-All manifests are in `k8s/`:
-
-* **Postgres Deployment & PVC**
-* **Backend Deployment & Service**
-* **Nginx Reverse Proxy**
-* **ConfigMaps for backend config**
-
-To deploy:
+### For iOS
 
 ```bash
-kubectl apply -f k8s/
+# using npm
+npm run ios
+
+# OR using Yarn
+yarn ios
 ```
 
----
+If everything is set up _correctly_, you should see your new app running in your _Android Emulator_ or _iOS Simulator_ shortly provided you have set up your emulator/simulator correctly.
 
-## 🔗 API Endpoints
+This is one way to run your app — you can also run it directly from within Android Studio and Xcode respectively.
 
-| Method | Endpoint                              | Description                       |
-| ------ | ------------------------------------- | --------------------------------- |
-| GET    | `/movies`                             | Get all movies (supports filters) |
-| GET    | `/movie?id={id}`                      | Get movie by ID                   |
-| GET    | `/theatres`                           | Get all theatres                  |
-| POST   | `/bookings`                           | Create a booking                  |
-| GET    | `/getBookingById?id={id}`             | Get booking by ID                 |
-| GET    | `/getBookedSeatsForShow?show_id={id}` | Get booked seats                  |
-| POST   | `/prefill-shows`                      | Auto-create shows                 |
-| POST   | `/prefill-seats?show_id={id}`         | Auto-create seats for a show      |
+## Step 3: Modifying your App
 
----
+Now that you have successfully run the app, let's modify it.
 
-## 📦 Folder Structure
+1. Open `App.tsx` in your text editor of choice and edit some lines.
+2. For **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Developer Menu** (<kbd>Ctrl</kbd> + <kbd>M</kbd> (on Window and Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (on macOS)) to see your changes!
 
-```
-backend/
- ├── core/                  # Business logic
- ├── models/                # Entity & request/response models
- ├── providers/database/    # Database connection logic
- ├── server/http/           # API route handlers
- ├── config.yaml            # DB config
- ├── main.go
-frontend/
- ├── ...                    # React Native UI code
-k8s/
- ├── postgres.yaml
- ├── backend.yaml
- ├── nginx.yaml
-```
+   For **iOS**: Hit <kbd>Cmd ⌘</kbd> + <kbd>R</kbd> in your iOS Simulator to reload the app and see your changes!
 
-## 📝 Notes
+## Congratulations! :tada:
 
-* The **PostgreSQL DB is not hosted** — you must run it locally (see setup section above).
-* The **frontend** is built for mobile experience but can run locally with Expo.
-* Make sure to **update `config.yaml`** with your PostgreSQL credentials before running locally.
+You've successfully run and modified your React Native App. :partying_face:
 
----
+### Now what?
 
-## 📄 License
+- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
+- If you're curious to learn more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
 
-This project is licensed under the **MIT License**.
+# Troubleshooting
+
+If you can't get this to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+
+# Learn More
+
+To learn more about React Native, take a look at the following resources:
+
+- [React Native Website](https://reactnative.dev) - learn more about React Native.
+- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
+- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
+- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
+- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.

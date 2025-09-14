@@ -22,7 +22,7 @@ const getAllBookingsEpic = (action$: any) =>
           });
         }),
         catchError((error: IErrorActionData) => {
-          console.error("Service error:", error);
+          console.error("get all booking Service error:", error);
           return of(
             getAllBookingsFailure({
               errorCode: error.errorCode,

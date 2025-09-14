@@ -19,7 +19,7 @@ const getShowsByMovieIdEpic = (action$: any) =>
           });
         }),
         catchError((error: IErrorActionData) => {
-          console.error("Service error:", error);
+          console.error("getshowsbymovieid Service error:", error);
           return of(
             getShowsByMovieIdFailure({
               errorCode: error.errorCode,

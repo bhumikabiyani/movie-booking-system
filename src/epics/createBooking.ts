@@ -22,7 +22,7 @@ const createBookingEpic = (action$: any) =>
           });
         }),
         catchError((error: IErrorActionData) => {
-          console.error("Service error:", error);
+          console.error("Create Booking Service error:", error.errorMessage);
           return of(
             createBookingFailure({
               errorCode: error.errorCode,

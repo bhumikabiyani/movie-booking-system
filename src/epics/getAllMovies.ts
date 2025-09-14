@@ -22,7 +22,7 @@ const getAllMoviesEpic = (action$: any) =>
           });
         }),
         catchError((error: IErrorActionData) => {
-          console.error("Service error:", error);
+          console.error("get all movies Service error:", error);
           return of(
             getAllMoviesFailure({
               errorCode: error.errorCode,

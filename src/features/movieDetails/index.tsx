@@ -39,7 +39,7 @@ const MovieDetails: React.FC<MovieDetailsProps> = ({ navigation, route }) => {
   const [showSeatBooking, setShowSeatBooking] = useState(false);
   const [selectedShowID, setSelectedShowID] = useState<number | null>(null);
   const [refreshing, setRefreshing] = useState(false);
-
+  console.log("abcd movieId", movieId);
   useEffect(() => {
     if (movieId) {
       dispatch(getMovieDetail({ movieId }));

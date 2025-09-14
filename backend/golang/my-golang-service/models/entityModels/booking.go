@@ -7,3 +7,9 @@ type Booking struct {
 	TotalSeatsBooked int    `json:"total_seats_booked"`
 	Info             []byte `json:"info"`
 }
+
+type BookingRequest struct {
+	ShowID     uint     `json:"show_id"`
+	SeatNumbers []string `json:"seat_numbers"`
+	UserID     uint     `json:"user_id"`
+}

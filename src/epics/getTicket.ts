@@ -24,7 +24,7 @@ const getTicketDetailEpic = (action$: any) =>
           });
         }),
         catchError((error: IErrorActionData) => {
-          console.error("Service error:", error);
+          console.error("getTicket Service error:", error);
           return of(
             getTicketDetailFailure({
               errorCode: error.errorCode,

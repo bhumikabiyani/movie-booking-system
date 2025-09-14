@@ -13,4 +13,5 @@ type Show struct {
     CreatedAt time.Time `json:"created_at" gorm:"autoCreateTime"`
     UpdatedAt time.Time `json:"updated_at" gorm:"autoUpdateTime"`
     DeletedAt *time.Time `json:"deleted_at" gorm:"index"`
+    BookedSeats string `gorm:"column:booked_seats;type:text" json:"booked_seats"`
 }
