@@ -2,22 +2,6 @@
 
 A full-stack movie ticket booking application built with React Native for mobile and Go for backend services.
 
-## 📋 Table of Contents
-
-- [Project Overview](#project-overview)
-- [Architecture](#architecture)
-- [Tech Stack](#tech-stack)
-- [Features](#features)
-- [Project Structure](#project-structure)
-- [Installation & Setup](#installation--setup)
-- [Getting Started](#getting-started)
-- [Backend Setup](#backend-setup)
-- [Development](#development)
-- [Building for Production](#building-for-production)
-- [License](#license)
-
----
-
 ## 🎯 Project Overview
 
 Movie Booking System is a comprehensive mobile application that allows users to:
